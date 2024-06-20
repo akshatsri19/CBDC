@@ -2,6 +2,8 @@
 
 A simple Central Bank Digital Currency (CBDC) application leveraging the account transfer functions of the Account Transfer Application in Hyperledger Fabric. The application includes additional functionalities such as freezing and unfreezing accounts.
 
+[CBDC Presentation](CBDCs.pdf)
+
 ## Features
 - Register & Enroll user: Feature to register and enroll a new user
 - Account Initialization: Users can initialize new accounts with unique identifiers
