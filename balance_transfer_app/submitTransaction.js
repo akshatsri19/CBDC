@@ -4,8 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const { Wallets, Gateway } = require('fabric-network');
 
-const testNetworkRoot = path.resolve(require('os').homedir(), 'fabric-samples/test-network');
-
 async function main() {
     const gateway = new Gateway();
     const wallet = await Wallets.newFileSystemWallet('./wallet');
@@ -20,13 +18,13 @@ async function main() {
         const orgName = identityLabel.split('@')[1];
         const orgNameWithoutDomain = orgName.split('.')[0];
 
-        // Read the connection profile.
-        const connectionProfilePath = path.resolve(
-            `/Users/akshatsrivastava/EnterpriseBlockchain/Lab1/fabric-samples/test-network/organizations/peerOrganizations/${orgName}`, 
+         // Read the connection profile.
+         const connectionProfilePath = path.resolve(
+            `/Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/${orgName}`, 
             `connection-${orgNameWithoutDomain}.json`
         );
 
-        let connectionProfile = JSON.parse(fs.readFileSync(connectionProfilePath, 'utf8'));
+        const connectionProfile = JSON.parse(fs.readFileSync(connectionProfilePath, 'utf8'));
         
         let connectionOptions = {
             identity: identityLabel,

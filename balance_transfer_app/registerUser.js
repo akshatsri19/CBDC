@@ -2,16 +2,23 @@
 
 const fs = require('fs');
 const path = require('path');
-const FabricCAServices = require('fabric-ca-client');
-const { Wallets } = require('fabric-network');
 
-async function registerAndEnrollUser(registrarLabel, identityLabel, enrollmentID, enrollmentSecret, optional = {}) {
+const FabricCAServices = require('fabric-ca-client');
+const { Wallets, Gateway } = require('fabric-network');
+
+
+async function main() {
     try {
         // Create a new FileSystemWallet object for managing identities.
         const wallet = await Wallets.newFileSystemWallet('./wallet');
 
+        // Process input parameters.
+        let args = process.argv.slice(2);
+
+        const registrarLabel = args[0];
+
         // Check to see if we've already enrolled the registrar user.
-        const registrarIdentity = await wallet.get(registrarLabel);
+        let registrarIdentity = await wallet.get(registrarLabel);
         if (!registrarIdentity) {
             console.log(`An identity for the registrar user ${registrarLabel} does not exist in the wallet`);
             console.log('Run the enrollUser.js application before retrying');
@@ -23,7 +30,7 @@ async function registerAndEnrollUser(registrarLabel, identityLabel, enrollmentID
 
         // Read the connection profile.
         const connectionProfilePath = path.resolve(
-            `/Users/akshatsrivastava/EnterpriseBlockchain/Lab1/fabric-samples/test-network/organizations/peerOrganizations/${orgName}`, 
+            `/Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/${orgName}`, 
             `connection-${orgNameWithoutDomain}.json`
         );
 
@@ -33,51 +40,36 @@ async function registerAndEnrollUser(registrarLabel, identityLabel, enrollmentID
         const ca = new FabricCAServices(connectionProfile['certificateAuthorities'][`ca.${orgName}`].url);
 
         const provider = wallet.getProviderRegistry().getProvider(registrarIdentity.type);
-        const registrarUser = await provider.getUserContext(registrarIdentity, registrarLabel);
+		const registrarUser = await provider.getUserContext(registrarIdentity, registrarLabel);
+
+        const enrollmentID = args[1];
+
+        // optional parameters
+        let optional = {};
+        if (args.length > 2) {
+            optional = JSON.parse(args[2]);
+        }
 
         // Register the user and return the enrollment secret.
-        const registerRequest = {
+        let registerRequest = {
             enrollmentID: enrollmentID,
-            enrollmentSecret: optional.secret || enrollmentSecret,
+            enrollmentSecret: optional.secret || "",
             role: 'client',
             attrs: optional.attrs || []
         };
         const secret = await ca.register(registerRequest, registrarUser);
         console.log(`Successfully registered the user with the ${enrollmentID} enrollment ID and ${secret} enrollment secret.`);
-
-        // Check to see if we've already enrolled the user.
-        let identity = await wallet.get(identityLabel);
-        if (identity) {
-            console.log(`An identity for the ${identityLabel} user already exists in the wallet`);
-            return;
-        }
-
-        // Enroll the user, and import the new identity into the wallet.
-        const enrollmentRequest = {
-            enrollmentID: enrollmentID,
-            enrollmentSecret: secret,
-            attr_reqs: optional.attrs || []
-        };
-        const enrollment = await ca.enroll(enrollmentRequest);
-
-        const orgNameCapitalized = orgNameWithoutDomain.charAt(0).toUpperCase() + orgNameWithoutDomain.slice(1);
-        identity = {
-            credentials: {
-                certificate: enrollment.certificate,
-                privateKey: enrollment.key.toBytes(),
-            },
-            mspId: `${orgNameCapitalized}MSP`,
-            type: 'X.509',
-        };
-
-        await wallet.put(identityLabel, identity);
-        console.log(`Successfully enrolled ${identityLabel} user and imported it into the wallet`);
-
     } catch (error) {
-        console.error(`Failed to register and enroll user: ${error}`);
-        throw error; // Rethrow the error to be handled by the caller
+        console.error(`Failed to register user: ${error}`);
+        process.exit(1);
     }
 }
 
-// Exporting the function for use in other modules.
-module.exports = registerAndEnrollUser;
+main().then(() => {
+    console.log('User registration completed successfully.');
+}).catch((e) => {
+    console.log('User registration exception.');
+    console.log(e);
+    console.log(e.stack);
+    process.exit(-1);
+});

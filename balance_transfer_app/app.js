@@ -5,7 +5,7 @@ const express = require("express");
 const { Gateway, Wallets } = require("fabric-network");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const enrollUser = require("./registerUser");
+const enrollUser = require("./registerAndEnrollUser");
 
 const app = express();
 const port = 3001;
@@ -19,9 +19,10 @@ async function getContractInstance(user) {
     const orgNameWithoutDomain = orgName.split('.')[0];
 
     const connectionProfilePath = path.resolve(
-        `/Users/akshatsrivastava/EnterpriseBlockchain/Lab1/fabric-samples/test-network/organizations/peerOrganizations/${orgName}`,
+        `/Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/${orgName}`, 
         `connection-${orgNameWithoutDomain}.json`
     );
+
     const connectionProfile = JSON.parse(fs.readFileSync(connectionProfilePath, 'utf8'));
 
     const walletPath = path.join(process.cwd(), "wallet");
@@ -45,6 +46,7 @@ async function getContractInstance(user) {
 app.get("/", (req, res) => res.send("Balance Transfer Api"));
 
 app.get("/list-accounts", async (req, res) => {
+    console.log(req.query);
     const { user } = req.query;
     if (!user) {
         return res.status(400).json({ error: "User not specified" });

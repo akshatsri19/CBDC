@@ -1,21 +1,3 @@
-# Simple Account Transfer Application in Hyperledger Fabric
-Note: You must complete Lab #1 and Lab #2 first which will include the required binary files. 
-```
-sudo reboot ## restart your vm to free up resources
-```
-```
-sudo dpkg --configure -a
-```
-```
-sudo apt install jq
-```
-```
-cd fabric-samples
-```
-```
-git clone https://github.com/lley154/account_balance_transfer_app.git
-```
-
 ## Part 1: Using peer command to interact with Chaincode
 Set environment variables:
 ```
@@ -25,12 +7,16 @@ cd test-network
 ./network.sh down
 ```
 ```
-export PATH=${PWD}/../bin:$PATH
-export FABRIC_CFG_PATH=$PWD/../config/
+If running on Docker adjust path accordingly
+
+replace ${PWD}/ with /Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/
+
+export PATH=/Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/../bin:$PATH
+export FABRIC_CFG_PATH=/Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/../config/
 export CORE_PEER_TLS_ENABLED=true
 export CORE_PEER_LOCALMSPID="Org1MSP"
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_TLS_ROOTCERT_FILE=/Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=/Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
 export CORE_PEER_ADDRESS=localhost:7051
 ```
 Start the network channel

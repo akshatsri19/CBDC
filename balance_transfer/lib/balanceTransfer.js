@@ -37,6 +37,10 @@ class BalanceTransfer extends Contract {
         if (account.owner !== txCreator) {
             throw new Error(`unauthorized access: you can't change account that doesn't belong to you`);
         }
+        
+        if (account.frozen) {
+            throw new Error(`account is frozen and cannot be modified`);
+        }
 
         account.balance = newAccountBalance;
         await this._putAccount(ctx, account);
@@ -59,6 +63,12 @@ class BalanceTransfer extends Contract {
 
         if (accountFrom.balance < amountToTransfer) {
             throw new Error(`amount to transfer cannot be more than the current account balance`);
+        }
+
+        if (accountFrom.frozen) {
+            throw new Error(`account you are transferring from is frozen and cannot be modified`);
+        } else if (accountTo.frozen) {
+            throw new Error(`account you are transferring to is frozen and cannot be modified`);
         }
 
         accountFrom.balance -= amountToTransfer
@@ -84,6 +94,42 @@ class BalanceTransfer extends Contract {
         return JSON.stringify(results);
     }
 
+    async freezeAccount(ctx, id) {
+        let account = await this._getAccount(ctx, id);
+        const txCreator = this._getTxCreatorUID(ctx);
+        
+        console.log('Transaction Creator MSPid:', txCreator.mspid);  // Log txCreator.id
+        console.log('Transaction Creator ID:', txCreator.id);  // Log txCreator.id
+        
+        if (!this._isAdmin(txCreator)) {
+            throw new Error(`only admin can freeze accounts`);
+        }
+
+        account.frozen = true;
+        await this._putAccount(ctx, account);
+    }
+    
+    async unfreezeAccount(ctx, id) {
+        let account = await this._getAccount(ctx, id);
+        const txCreator = this._getTxCreatorUID(ctx);
+        
+        console.log('Transaction Creator MSPid:', txCreator.mspid); // Log the txCreator.id
+        console.log('Transaction Creator ID:', txCreator.id); // Log the txCreator.id
+        
+        if (!this._isAdmin(txCreator)) {
+            throw new Error(`only admin can unfreeze accounts`);
+        }
+        
+        account.frozen = false;
+        await this._putAccount(ctx, account);
+    }
+
+    _isAdmin(txCreator) {
+        const creator = JSON.parse(txCreator);
+        console.log('Transaction creator id check:', creator.id);  // Log creator.id
+        return creator.id.includes('admin');
+    }
+    
     _getTxCreatorUID(ctx) {
         return JSON.stringify({
             mspid: ctx.clientIdentity.getMSPID(),
