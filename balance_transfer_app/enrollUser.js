@@ -2,22 +2,26 @@
 
 const fs = require('fs');
 const path = require('path');
+
 const FabricCAServices = require('fabric-ca-client');
 const { Wallets } = require('fabric-network');
 
-async function enrollUser(identityLabel, enrollmentID, enrollmentSecret, enrollmentAttributes) {
+
+async function main() {
     try {
-        // Assuming identityLabel is in the format <username>@<organization-domain>
+        let args = process.argv.slice(2);
+
+        const identityLabel = args[0];
         const orgName = identityLabel.split('@')[1];
         const orgNameWithoutDomain = orgName.split('.')[0];
 
         // Read the connection profile.
         const connectionProfilePath = path.resolve(
-            `/Users/akshatsrivastava/EnterpriseBlockchain/Lab1/fabric-samples/test-network/organizations/peerOrganizations/${orgName}`, 
+            `/Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/${orgName}`, 
             `connection-${orgNameWithoutDomain}.json`
         );
 
-        let connectionProfile = JSON.parse(fs.readFileSync(connectionProfilePath, 'utf8'));
+        const connectionProfile = JSON.parse(fs.readFileSync(connectionProfilePath, 'utf8'));
 
         // Create a new CA client for interacting with the CA.
         const ca = new FabricCAServices(connectionProfile['certificateAuthorities'][`ca.${orgName}`].url);
@@ -25,15 +29,24 @@ async function enrollUser(identityLabel, enrollmentID, enrollmentSecret, enrollm
         // Create a new FileSystemWallet object for managing identities.
         const wallet = await Wallets.newFileSystemWallet('./wallet');
 
-        // Check if the user identity already exists in the wallet.
+        // Check to see if we've already enrolled the user.
         let identity = await wallet.get(identityLabel);
         if (identity) {
             console.log(`An identity for the ${identityLabel} user already exists in the wallet`);
             return;
         }
 
-        // Enroll the user and import the new identity into the wallet.
-        const enrollmentRequest = {
+        // Enroll the user, and import the new identity into the wallet.
+        const enrollmentID = args[1];
+        const enrollmentSecret = args[2];
+
+        // optional
+        let enrollmentAttributes = [];
+        if (args.length > 3) {
+            enrollmentAttributes = JSON.parse(args[3]);
+        }
+
+        let enrollmentRequest = {
             enrollmentID: enrollmentID,
             enrollmentSecret: enrollmentSecret,
             attr_reqs: enrollmentAttributes
@@ -55,9 +68,15 @@ async function enrollUser(identityLabel, enrollmentID, enrollmentSecret, enrollm
 
     } catch (error) {
         console.error(`Failed to enroll user: ${error}`);
-        throw error; // Rethrow the error to be handled by the caller
+        process.exit(1);
     }
 }
 
-// Exporting the main function for use in other modules.
-module.exports = enrollUser;
+main().then(() => {
+    console.log('User enrollment completed successfully.');
+}).catch((e) => {
+    console.log('User enrollment exception.');
+    console.log(e);
+    console.log(e.stack);
+    process.exit(-1);
+});
