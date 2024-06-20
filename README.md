@@ -1,3 +1,5 @@
+USE CBDC_Document to run the application
+
 ## Part 1: Using peer command to interact with Chaincode
 Set environment variables:
 ```
