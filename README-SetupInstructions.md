@@ -22,7 +22,8 @@ A simple Central Bank Digital Currency (CBDC) application leveraging the account
 
 1. Clone the CBDC repository
 
-__Note__: you should already have fabric-samples repo on your system.
+> [!NOTE]
+> You should already have fabric-samples repo on your system.
 
 ```
 cd fabric-samples
@@ -71,7 +72,7 @@ peer lifecycle chaincode queryinstalled
 ```
 
 <details open>
-<summary>Open to see the commands to invoke the chaincode to test the functions using commands here. </summary>
+<summary>Open to see the commands to invoke the chaincode to test the functions. </summary>
 <h4> Invoke chaincode: </h4>
 <pre>
 peer chaincode invoke \
@@ -218,7 +219,8 @@ First you have to enroll the admin user (required)
 node enrollUser.js 'CAAdmin@org1.example.com' admin adminpw
 ```
 
-__NOTE__: The registration and enrollment of user can be done via frontent as well. Start the backend server `node app.js`and Skip to [Step 3](#step-3-interact-through-frontend) to interact with chaincode through frontend.
+> [!NOTE]
+> The registration and enrollment of user can be done via frontent as well. Start the backend server `node app.js`and Skip to [Step 3](#step-3-interact-through-frontend) to interact with chaincode through frontend.
 
 Now register user as follows (The registration and enrollment of user can be performed via frontend as well.)
 ```
