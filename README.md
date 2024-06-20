@@ -1,23 +1,35 @@
-# Simple Account Transfer Application in Hyperledger Fabric
-Note: You must complete Lab #1 and Lab #2 first which will include the required binary files. 
-```
-sudo reboot ## restart your vm to free up resources
-```
-```
-sudo dpkg --configure -a
-```
-```
-sudo apt install jq
-```
+# CBDC Application
+
+A simple Central Bank Digital Currency (CBDC) application leveraging the account transfer functions of the Account Transfer Application in Hyperledger Fabric. The application includes additional functionalities such as freezing and unfreezing accounts.
+
+## Features
+- Register & Enroll user: Feature to register and enroll a new user
+- Account Initialization: Users can initialize new accounts with unique identifiers
+- Set Balance: Set the intial balance for an account, the same method can be used to update the balance of an account
+- Freeze Account: Freeze an account to prevent any transaction or any modification to the account
+- Transfer: Transfer funds between accounts
+- Unfreeze Account: Unfreeze a previously frozen account to allow transactions
+
+## Prerequisites
+- Docker
+- Node.js and npm
+- React
+- Hyperledger Fabric binaries and Docker images
+
+# Setup Instructions
+
+## Step 1: Set Up the Network
+
+1. Clone the CBDC repository
+
+__Note__: you should already have fabric-samples repo on your system.
+
 ```
 cd fabric-samples
-```
-```
-git clone https://github.com/lley154/account_balance_transfer_app.git
+git clone https://github.com/akshatsri19/CBDC.git
 ```
 
-## Part 1: Using peer command to interact with Chaincode
-Set environment variables:
+2. Clean up and set the environment variables
 ```
 cd test-network
 ```
@@ -33,25 +45,24 @@ export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.e
 export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
 export CORE_PEER_ADDRESS=localhost:7051
 ```
-Start the network channel
+
+3. Start the network channel
 ```
-./network.sh up createChannel -ca -s couchdb
-```
-```
-sudo chmod a+rwx -R organizations  ## this is only done for lab env
+.network.sh up createChannel -ca -s couchdb 
 ```
 ```
-sudo chmod a+rwx -R ../config  ## this is only done for lab env
+sudo chmod a+rwx -R organizations  ## this is only done for project env
 ```
 ```
-sudo chmod a+rwx log.txt  ## this is only done for lab env
-```
-Deploy the chaincode
-```
-./network.sh deployCC -ccn balance_transfer -ccv 1.0 -ccp ../account_balance_transfer_app/balance_transfer -ccl javascript
+sudo chmod a+rwx -R ../config  ## this is only done for project env
 ```
 
-Test to see if you see the mychannel and installed chaincode
+4. Deploy the chaincode
+```
+./network.sh deployCC -ccn cbdc -ccv 1.0 -ccp ../CBDC/balance_transfer -ccl javascript
+```
+
+5. Test to see if you see the mychannel and installed chaincode
 ```
 peer channel list
 ```
@@ -59,8 +70,10 @@ peer channel list
 peer lifecycle chaincode queryinstalled
 ```
 
-Invoke chaincode:
-```
+<details open>
+<summary>Open to see the commands to invoke the chaincode to test the functions using commands here. </summary>
+<h4> Invoke chaincode: </h4>
+<pre>
 peer chaincode invoke \
     -o localhost:7050 \
     --ordererTLSHostnameOverride orderer.example.com \
@@ -72,17 +85,19 @@ peer chaincode invoke \
     --peerAddresses localhost:9051 \
     --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
     -c '{"function":"initAccount","Args":["A1","100"]}'
-```
-List the initial balance
-```
+</pre>
+<h4>List the initial balance</h4>
+<pre>
 peer chaincode query \
     -C mychannel \
     -n balance_transfer \
     -c '{"function":"listAccounts", "Args":[]}' | jq
-```
+</pre>
 
+<h4>
 Repeat same invoke command with -c '{"function":"setBalance","Args":["A1","150"]}'
-```
+</h4>
+<pre>
 peer chaincode invoke \
     -o localhost:7050 \
     --ordererTLSHostnameOverride orderer.example.com \
@@ -94,20 +109,52 @@ peer chaincode invoke \
     --peerAddresses localhost:9051 \
     --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
     -c '{"function":"setBalance","Args":["A1","150"]}'
-```
-Now, list the new balance
-```
+</pre>
+<h4>Now, list the new balance</h4>
+<pre>
 peer chaincode query \
     -C mychannel \
     -n balance_transfer \
     -c '{"function":"listAccounts", "Args":[]}' | jq
-```
-Change user to User1:
-```
+</pre>
+<h4> Use the following commands to invoke freezeAccount and unfreezeAccount functions in chaincode </h4>
+
+freezeAccount
+<pre>
+peer chaincode invoke \
+    -o localhost:7050 \
+    --ordererTLSHostnameOverride orderer.example.com \
+    --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem \
+    -C mychannel \
+    -n balance_transfer \
+    --peerAddresses localhost:7051 \
+    --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt \
+    --peerAddresses localhost:9051 \
+    --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
+    -c '{"function":"freezeAccount","Args":["A1"]}'  
+</pre>
+
+unfreezeAccount
+<pre>
+peer chaincode invoke \
+    -o localhost:7050 \
+    --ordererTLSHostnameOverride orderer.example.com \
+    --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem \
+    -C mychannel \
+    -n balance_transfer \
+    --peerAddresses localhost:7051 \
+    --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt \
+    --peerAddresses localhost:9051 \
+    --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
+    -c '{"function":"unfreezeAccount","Args":["A1"]}'   
+</pre>
+
+<h4>Change user to User1</h4>
+<pre>
 export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp
-```
-Initialize the account with some funds
-```
+</pre>
+<h4>Initialize the account with some funds</h4>
+<pre>
 peer chaincode invoke \
     -o localhost:7050 \
     --ordererTLSHostnameOverride orderer.example.com \
@@ -119,9 +166,9 @@ peer chaincode invoke \
     --peerAddresses localhost:9051 \
     --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
     -c '{"function":"initAccount","Args":["U1","150"]}'
-```
-Now transfer between User1 (U1) and Admin (A1)
-```
+</pre>
+<h4>Now transfer between User1 (U1) and Admin (A1)</h4>
+<pre>
 peer chaincode invoke \
     -o localhost:7050 \
     --ordererTLSHostnameOverride orderer.example.com \
@@ -133,40 +180,47 @@ peer chaincode invoke \
     --peerAddresses localhost:9051 \
     --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
     -c   '{"function":"transfer","Args":["U1","A1", "100"]}'
-```
-List the final balance of U1
-```
+</pre>
+<h4>List the final balance of U1</h4>
+<pre>
 peer chaincode query \
     -C mychannel \
     -n balance_transfer \
     -c '{"function":"listAccounts", "Args":[]}' | jq
-```
-And then the final balance of A1
-```
+</pre>
+<h4>And then the final balance of A1</h4>
+<pre>
 export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
 
 peer chaincode query \
     -C mychannel \
     -n balance_transfer \
     -c '{"function":"listAccounts", "Args":[]}' | jq
-```
+</pre>
+</details>
 
-## Part 2: Using Fabric Application Gateway, Wallets to interact with Chaincode
+## Step 2: Using Fabric Application Gateway, Wallets to interact with Chaincode
 
-Go into the account balance transfer app directory
+Go into the balance_transfer_app directory
+
+> [!TIP]
+> To avoid any issues accessing the organizations directory make sure to set path to the directory containing CBDC as HOME. `export HOME=/path/to/directory/containingCBDC`.
+
 ```
-cd ../account_balance_transfer_app/balance_transfer_app
+cd ../CBDC/balance_transfer_app
 ```
 Install node node modules
 ```
 npm install
 ```
-First you have to enroll the admin user
+First you have to enroll the admin user (required)
 ```
 node enrollUser.js 'CAAdmin@org1.example.com' admin adminpw
 ```
 
-Now register user as follows
+__NOTE__: The registration and enrollment of user can be done via frontent as well. Start the backend server `node app.js`and Skip to [Step 3](#step-3-interact-through-frontend) to interact with chaincode through frontend.
+
+Now register user as follows (The registration and enrollment of user can be performed via frontend as well.)
 ```
 node registerUser.js 'CAAdmin@org1.example.com' 'User1@org1.example.com' '{"secret": "userpw"}'
 ```
@@ -191,52 +245,40 @@ node registerUser.js 'CAAdmin@org1.example.com' 'User2@org1.example.com' '{"secr
 ```
 node enrollUser.js 'User2@org1.example.com' 'User2@org1.example.com' userpw2
 ```
-Using User 2 create acc2
-```
-node submitTransaction.js 'User2@org1.example.com' initAccount acc2 200
-```
-```
-node submitTransaction.js 'User2@org1.example.com' listAccounts 
-```
-Now transfer 50 from acc2 to acc1
-```
-node submitTransaction.js 'User2@org1.example.com' transfer acc2 acc1 50
-```
-```
-node submitTransaction.js 'User2@org1.example.com' listAccounts 
-```
-```
-node submitTransaction.js 'User1@org1.example.com' listAccounts
-```
-Look and confirm there are 3 wallets created and have the certificate and private key for each.
-```
-ls -l wallet
-```
-```
-total 12
--rw-rw-r-- 1 ubuntu ubuntu 1139 Feb 10 21:25 CAAdmin@org1.example.com.id
--rw-rw-r-- 1 ubuntu ubuntu 1159 Feb 10 21:26 User1@org1.example.com.id
--rw-rw-r-- 1 ubuntu ubuntu 1159 Feb 10 21:30 User2@org1.example.com.id
-```
-```
-cat wallet/User1@org1.example.com.id | jq
-```
-```
-{
-  "credentials": {
-    "certificate": "-----BEGIN CERTIFICATE-----\nMIICHTCCAcSgAwIBAgIUZ5brwciSh1l1DFM65ynf0KOgiMYwCgYIKoZIzj0EAwIw\ncDELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMQ8wDQYDVQQH\nEwZEdXJoYW0xGTAXBgNVBAoTEG9yZzEuZXhhbXBsZS5jb20xHDAaBgNVBAMTE2Nh\nLm9yZzEuZXhhbXBsZS5jb20wHhcNMjQwMjEwMjA1MTAwWhcNMjUwMjA5MjEyNzAw\nWjAyMQ8wDQYDVQQLEwZjbGllbnQxHzAdBgNVBAMMFlVzZXIxQG9yZzEuZXhhbXBs\nZS5jb20wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAARF+IznR6K0k4q7YvT/xRdP\nAZLSV2n9dgu2+wU2ICPWSIrDaJye5ftj11fNk44T+t41v8d0HjXRhnud2Nmwg8PU\no3oweDAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAdBgNVHQ4EFgQUTu8K\nARFWVKFvRF7MXjuxi5WOnRcwHwYDVR0jBBgwFoAUVnLbCgv2Rj5ZiV+uhgCd6ttH\na5MwGAYIKgMEBQYHCAEEDHsiYXR0cnMiOnt9fTAKBggqhkjOPQQDAgNHADBEAiAN\nPjnDeBziTuUNE8n9uvsyCKsZeaikLTcg9f4X2h+sJAIgPJwZzZ4IaNiqOrjAIue3\nNeLp2ZP8PTfPcR9LmYtAVE4=\n-----END CERTIFICATE-----\n",
-    "privateKey": "-----BEGIN PRIVATE KEY-----\r\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgL6QmkRWcMjOhRYtP\r\nXD6lsQRRn8BoD79IANF5895L8dGhRANCAARF+IznR6K0k4q7YvT/xRdPAZLSV2n9\r\ndgu2+wU2ICPWSIrDaJye5ftj11fNk44T+t41v8d0HjXRhnud2Nmwg8PU\r\n-----END PRIVATE KEY-----\r\n"
-  },
-  "mspId": "Org1MSP",
-  "type": "X.509",
-  "version": 1
-}
-```
+
 Note: If your network is restarted, you will need to remove the wallet directory (and regsiter and enroll again) because the public/private keys will no longer match the issuing CA on your network.
 
+## Step 3: Interact through Frontend
 
+1. Navigate to frontend directory
 
+```
+cd ../balance_transfer_app_frontend
+```
+2. Install dependencies
 
+```
+npm install
+```
+3. Run the frontend application
 
+```
+npm start
+```
+4. Open the browser and navigate to the url displayed on terminal
+```
+http://localhost:3001 (port number may differ)
+```
+The backend is running on port 3000 and frontend will run on a different port (probably 3001).
+
+5. Use the interface to interact with the CBDC application
+- Intialize accounts
+- Set balance
+- Freeze and unfreeze accounts
+- Transfer funds between accounts
+
+# Conclusion
+
+This README provides a step-by-step guide to setting up and interacting with a simple CBDC application built on Hyperledger Fabric. The application includes additional functionalities to manage accounts effectively. Follow the instructions carefully to deploy and run the application successfully.
 
 
