@@ -125,17 +125,33 @@ app.get('/wallet-users', async (req, res) => {
   }
 });
 
-// app.delete('/wallet-users/:userId', async (req, res) => {
-//     try {
-//         const { userId } = req.params;
-//         const wallet = await Wallets.newFileSystemWallet('./wallet');
-//         await wallet.remove(userId);
-//         res.json({ message: `Successfully deleted user ${userId} from the wallet` });
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// });
+app.post('/freeze-account', async (req, res) => {
+    const { freezeAccountId, user } = req.body;
+    if (!freezeAccountId || !user) {
+        return res.status(400).json({ error: "Missing required fields" });
+    }
+    try {
+        const contract = await getContractInstance(user);
+        await contract.submitTransaction('freezeAccount', freezeAccountId);
+        res.json({ message: "Account frozen successfully" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
+app.post('/unfreeze-account', async (req, res) => {
+    const { unfreezeAccountId, user } = req.body;
+    if (!unfreezeAccountId || !user) {
+        return res.status(400).json({ error: "Missing required fields" });
+    }
+    try {
+        const contract = await getContractInstance(user);
+        await contract.submitTransaction('unfreezeAccount', unfreezeAccountId);
+        res.json({ message: "Account unfrozen successfully" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 const server = app.listen(port, () => console.log(`Server running on port ${port}`));
 server.timeout = 60000;

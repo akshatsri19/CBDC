@@ -71,12 +71,34 @@ export const enrollUser = async (registrarLabel, identityLabel, enrollmentID, en
     }
 };
 
-// export const deleteUser = async (userId) => {
-//     const response = await fetch(`/wallet-users/${userId}`, {
-//         method: 'DELETE',
-//     });
-//     if (!response.ok) {
-//         throw new Error('Failed to delete user');
-//     }
-//     return response.json();
-// };
+export const freezeAccount = async (freezeAccountId, user) => {
+    const response = await fetch(`${apiUrl}/freeze-account`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ freezeAccountId, user }),
+    });
+
+    if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.error);
+    }
+    return response.json();
+}
+
+export const unfreezeAccount = async (unfreezeAccountId, user) => {
+    const response = await fetch(`${apiUrl}/unfreeze-account`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ unfreezeAccountId, user }),
+    });
+
+    if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.error);
+    }
+    return response.json();
+}

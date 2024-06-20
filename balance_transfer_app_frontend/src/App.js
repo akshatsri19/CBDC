@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { listAccounts, initAccount, transfer, setBalance, enrollUser } from './api'; // Correct import
+import { listAccounts, initAccount, transfer, setBalance, enrollUser, freezeAccount, unfreezeAccount } from './api'; // Correct import
 import './App.css';
 import axios from 'axios';
 import canadaCBDCImage from './assets/canada-cbdc.png';
@@ -24,6 +24,10 @@ const App = () => {
     const [enrollmentID, setEnrollmentID] = useState('');
     const [enrollmentSecret, setEnrollmentSecret] = useState('');
     const [enrollmentAttributes, setEnrollmentAttributes] = useState('');
+
+    // State variables for freezing/ unfreezing an account
+    const [freezeAccountId, setFreezeAccountId] = useState('');
+    const [unfreezeAccountId, setUnfreezeAccountId] = useState('');
 
     const fetchAccounts = async () => {
         if (user) {
@@ -90,7 +94,6 @@ const App = () => {
         }
     };
 
-
     const handleEnrollUser = async () => {
         try {
             const attributes = enrollmentAttributes ? JSON.parse(enrollmentAttributes) : [];
@@ -113,6 +116,34 @@ const App = () => {
             setWalletAccounts(response.data);
         } catch (error) {
             console.error('Error fetching wallet users:', error.message);
+        }
+    };
+
+    const handleFreezeAccount = async () => {
+        if (freezeAccountId && user) {
+            try {
+                await freezeAccount(freezeAccountId, user);
+                setFreezeAccountId('');
+                setError(''); // Clear error on success
+            } catch (err) {
+                setError(err.message);
+            }
+        } else {
+            setError('Please provide valid input and select Admin to freeze account.');
+        }
+    };
+
+    const handleUnfreezeAccount = async () => {
+        if (unfreezeAccountId && user) {
+            try {
+                await unfreezeAccount(unfreezeAccountId, user);
+                setUnfreezeAccountId('');
+                setError(''); // Clear error on success
+            } catch (err) {
+                setError(err.message);
+            }
+        } else {
+            setError('Please provide valid input and select Admin to unfreeze account.');
         }
     };
 
@@ -212,8 +243,8 @@ const App = () => {
                 </div>
                 <button onClick={handleSetBalance}>Set Balance</button>
 
+                <h2>Enroll User</h2>
                 <div>
-                    <h2>Enroll User</h2>
                     <input
                         type="text"
                         placeholder="Registrar Label"
@@ -239,6 +270,30 @@ const App = () => {
                         onChange={(e) => setEnrollmentSecret(e.target.value)}
                     />
                     <button onClick={handleEnrollUser}>Enroll User</button>
+                </div>
+            </div>
+
+            <div className="section">
+                <h2>Freeze Account</h2>
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Account ID"
+                        value={freezeAccountId}
+                        onChange={(e) => setFreezeAccountId(e.target.value)}
+                    />
+                    <button onClick={handleFreezeAccount}>Freeze</button>
+                </div>
+
+                <h2>Unfreeze Account</h2>
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Account ID"
+                        value={unfreezeAccountId}
+                        onChange={(e) => setUnfreezeAccountId(e.target.value)}
+                    />
+                    <button onClick={handleUnfreezeAccount}>Unfreeze</button>
                 </div>
             </div>
         </div>
