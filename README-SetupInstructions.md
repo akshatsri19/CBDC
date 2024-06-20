@@ -269,9 +269,9 @@ npm start
 ```
 4. Open the browser and navigate to the url displayed on terminal
 ```
-http://localhost:3001 (port number may differ)
+http://localhost:3000
 ```
-The backend is running on port 3000 and frontend will run on a different port (probably 3001).
+The backend is running on port 3001 and frontend will run on port 3000.
 
 5. Use the interface to interact with the CBDC application
 - Intialize accounts
