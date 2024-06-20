@@ -9,7 +9,8 @@ cd test-network
 ```
 If running on Docker adjust path accordingly
 
-replace ${PWD}/ with /Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/
+replace ${PWD}/ with where ever your test-network is on you system, mine is in:
+/Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/
 
 export PATH=/Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/../bin:$PATH
 export FABRIC_CFG_PATH=/Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/../config/
@@ -25,16 +26,18 @@ Start the network channel
 ```
 ```
 sudo chmod a+rwx -R organizations  ## this is only done for lab env
+for mac: sudo chmod -R a+rwx organizations
 ```
 ```
 sudo chmod a+rwx -R ../config  ## this is only done for lab env
+for mac: sudo chmod -R a+rwx  ../config
 ```
 ```
 sudo chmod a+rwx log.txt  ## this is only done for lab env
 ```
 Deploy the chaincode
 ```
-./network.sh deployCC -ccn balance_transfer -ccv 1.0 -ccp ../account_balance_transfer_app/balance_transfer -ccl javascript
+./network.sh deployCC -ccn balance_transfer -ccv 1.0 -ccp ../balance_transfer -ccl javascript
 ```
 
 Test to see if you see the mychannel and installed chaincode
@@ -50,13 +53,13 @@ Invoke chaincode:
 peer chaincode invoke \
     -o localhost:7050 \
     --ordererTLSHostnameOverride orderer.example.com \
-    --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem \
+    --tls --cafile /Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem \
     -C mychannel \
     -n balance_transfer \
     --peerAddresses localhost:7051 \
-    --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt \
+    --tlsRootCertFiles /Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt \
     --peerAddresses localhost:9051 \
-    --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
+    --tlsRootCertFiles /Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
     -c '{"function":"initAccount","Args":["A1","100"]}'
 ```
 List the initial balance
@@ -72,13 +75,13 @@ Repeat same invoke command with -c '{"function":"setBalance","Args":["A1","150"]
 peer chaincode invoke \
     -o localhost:7050 \
     --ordererTLSHostnameOverride orderer.example.com \
-    --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem \
+    --tls --cafile /Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem \
     -C mychannel \
     -n balance_transfer \
     --peerAddresses localhost:7051 \
-    --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt \
+    --tlsRootCertFiles /Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt \
     --peerAddresses localhost:9051 \
-    --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
+    --tlsRootCertFiles /Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
     -c '{"function":"setBalance","Args":["A1","150"]}'
 ```
 Now, list the new balance
@@ -90,20 +93,20 @@ peer chaincode query \
 ```
 Change user to User1:
 ```
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp
+export CORE_PEER_MSPCONFIGPATH=/Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp
 ```
 Initialize the account with some funds
 ```
 peer chaincode invoke \
     -o localhost:7050 \
     --ordererTLSHostnameOverride orderer.example.com \
-    --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem \
+    --tls --cafile /Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem \
     -C mychannel \
     -n balance_transfer \
     --peerAddresses localhost:7051 \
-    --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt \
+    --tlsRootCertFiles /Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt \
     --peerAddresses localhost:9051 \
-    --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
+    --tlsRootCertFiles /Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
     -c '{"function":"initAccount","Args":["U1","150"]}'
 ```
 Now transfer between User1 (U1) and Admin (A1)
@@ -111,13 +114,13 @@ Now transfer between User1 (U1) and Admin (A1)
 peer chaincode invoke \
     -o localhost:7050 \
     --ordererTLSHostnameOverride orderer.example.com \
-    --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem \
+    --tls --cafile /Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem \
     -C mychannel \
     -n balance_transfer \
     --peerAddresses localhost:7051 \
-    --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt \
+    --tlsRootCertFiles /Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt \
     --peerAddresses localhost:9051 \
-    --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
+    --tlsRootCertFiles /Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
     -c   '{"function":"transfer","Args":["U1","A1", "100"]}'
 ```
 List the final balance of U1
@@ -129,7 +132,7 @@ peer chaincode query \
 ```
 And then the final balance of A1
 ```
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_MSPCONFIGPATH=/Users/akshatsrivastava/EnterpriseBlockchain/CBDC_Project/CBDC/test-network/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
 
 peer chaincode query \
     -C mychannel \
@@ -141,7 +144,7 @@ peer chaincode query \
 
 Go into the account balance transfer app directory
 ```
-cd ../account_balance_transfer_app/balance_transfer_app
+cd ../balance_transfer_app
 ```
 Install node node modules
 ```
