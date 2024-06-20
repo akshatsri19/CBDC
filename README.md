@@ -224,6 +224,8 @@ cat wallet/User1@org1.example.com.id | jq
 Note: If your network is restarted, you will need to remove the wallet directory (and regsiter and enroll again) because the public/private keys will no longer match the issuing CA on your network.
 
 
+DEMO - https://youtu.be/ke55OcCS3mQ
+
 
 
 
