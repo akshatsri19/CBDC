@@ -50,7 +50,7 @@ git clone https://github.com/akshatsri19/CBDC.git
 
 2. Clean up and set the environment variables
 ```
-cd test-network
+cd CBDC/test-network
 ```
 ```
 ./network.sh down
