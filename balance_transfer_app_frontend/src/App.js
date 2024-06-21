@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { listAccounts, initAccount, transfer, setBalance, enrollUser } from './api'; // Correct import
+import { listAccounts, initAccount, transfer, setBalance, enrollUser, freezeAccount, unfreezeAccount } from './api'; // Correct import
 import './App.css';
 import axios from 'axios';
 import canadaCBDCImage from './assets/canada-cbdc.png';
@@ -25,6 +25,10 @@ const App = () => {
     const [enrollmentSecret, setEnrollmentSecret] = useState('');
     const [enrollmentAttributes, setEnrollmentAttributes] = useState('');
 
+    // State variables for freezing/ unfreezing an account
+    const [freezeAccountId, setFreezeAccountId] = useState('');
+    const [unfreezeAccountId, setUnfreezeAccountId] = useState('');
+
     const fetchAccounts = async () => {
         if (user) {
             try {
@@ -40,6 +44,17 @@ const App = () => {
         fetchAccounts();
     }, [user]);
 
+    const handleInputChange = (setter) => (event) => {
+        setter(event.target.value);
+        setError('');
+        setEnrollMessage('');
+    };
+
+    const extractErrorMessage = (error) => {
+        const errorMatch = error.match(/message=([^,]*)/);
+        return errorMatch ? errorMatch[1].split('\n')[0] : error;
+    };
+
     const handleInitAccount = async () => {
         if (newAccountId && newAccountBalance && user) {
             try {
@@ -49,7 +64,7 @@ const App = () => {
                 setNewAccountBalance('');
                 setError(''); // Clear error on success
             } catch (err) {
-                setError(err.message);
+                setError(extractErrorMessage(err.message));
             }
         } else {
             setError('Please provide valid input and select a user.');
@@ -67,7 +82,7 @@ const App = () => {
                 setTransferAmount('');
                 setError(''); // Clear error on success
             } catch (err) {
-                setError(err.message);
+                setError(extractErrorMessage(err.message));
             }
         } else {
             setError('Please provide valid input and select a user.');
@@ -83,13 +98,12 @@ const App = () => {
                 setSetBalanceValue('');
                 setError(''); // Clear error on success
             } catch (err) {
-                setError(err.message);
+                setError(extractErrorMessage(err.message));
             }
         } else {
             setError('Please provide valid input and select a user.');
         }
     };
-
 
     const handleEnrollUser = async () => {
         try {
@@ -116,6 +130,34 @@ const App = () => {
         }
     };
 
+    const handleFreezeAccount = async () => {
+        if (freezeAccountId && user) {
+            try {
+                await freezeAccount(freezeAccountId, user);
+                setFreezeAccountId('');
+                setError(''); // Clear error on success
+            } catch (err) {
+                setError(extractErrorMessage(err.message));
+            }
+        } else {
+            setError('Please provide valid input and select Admin to freeze account.');
+        }
+    };
+
+    const handleUnfreezeAccount = async () => {
+        if (unfreezeAccountId && user) {
+            try {
+                await unfreezeAccount(unfreezeAccountId, user);
+                setUnfreezeAccountId('');
+                setError(''); // Clear error on success
+            } catch (err) {
+                setError(extractErrorMessage(err.message));
+            }
+        } else {
+            setError('Please provide valid input and select Admin to unfreeze account.');
+        }
+    };
+
     useEffect(() => {
         fetchWalletUsers();
     }, []);
@@ -133,7 +175,7 @@ const App = () => {
 
                 <label>
                     Select Wallet Account:
-                    <select value={user} onChange={(e) => setUser(e.target.value)}>
+                    <select value={user} onChange={handleInputChange(setUser)}>
                         <option value="" disabled>Select user</option>
                         {walletAccounts.map((account) => (
                             <option key={account} value={account}>
@@ -159,13 +201,13 @@ const App = () => {
                         type="text"
                         placeholder="Account ID"
                         value={newAccountId}
-                        onChange={(e) => setNewAccountId(e.target.value)}
+                        onChange={handleInputChange(setNewAccountId)}
                     />
                     <input
                         type="number"
                         placeholder="Balance"
                         value={newAccountBalance}
-                        onChange={(e) => setNewAccountBalance(e.target.value)}
+                        onChange={handleInputChange(setNewAccountBalance)}
                     />
                 </div>
                 <button onClick={handleInitAccount}>Init Account</button>
@@ -176,19 +218,19 @@ const App = () => {
                         type="text"
                         placeholder="From Account ID"
                         value={transferFrom}
-                        onChange={(e) => setTransferFrom(e.target.value)}
+                        onChange={handleInputChange(setTransferFrom)}
                     />
                     <input
                         type="text"
                         placeholder="To Account ID"
                         value={transferTo}
-                        onChange={(e) => setTransferTo(e.target.value)}
+                        onChange={handleInputChange(setTransferTo)}
                     />
                     <input
                         type="number"
                         placeholder="Amount"
                         value={transferAmount}
-                        onChange={(e) => setTransferAmount(e.target.value)}
+                        onChange={handleInputChange(setTransferAmount)}
                     />
                 </div>
                 <button onClick={handleTransfer}>Transfer</button>
@@ -201,44 +243,68 @@ const App = () => {
                         type="text"
                         placeholder="Account ID"
                         value={setBalanceId}
-                        onChange={(e) => setSetBalanceId(e.target.value)}
+                        onChange={handleInputChange(setSetBalanceId)}
                     />
                     <input
                         type="number"
                         placeholder="New Balance"
                         value={setBalanceValue}
-                        onChange={(e) => setSetBalanceValue(e.target.value)}
+                        onChange={handleInputChange(setSetBalanceValue)}
                     />
                 </div>
                 <button onClick={handleSetBalance}>Set Balance</button>
 
+                <h2>Enroll User</h2>
                 <div>
-                    <h2>Enroll User</h2>
                     <input
                         type="text"
                         placeholder="Registrar Label"
                         value={registrarLabel}
-                        onChange={(e) => setRegistrarLabel(e.target.value)}
+                        onChange={handleInputChange(setRegistrarLabel)}
                     />
                     <input
                         type="text"
                         placeholder="Identity Label"
                         value={identityLabel}
-                        onChange={(e) => setIdentityLabel(e.target.value)}
+                        onChange={handleInputChange(setIdentityLabel)}
                     />
                     <input
                         type="text"
                         placeholder="Enrollment ID"
                         value={enrollmentID}
-                        onChange={(e) => setEnrollmentID(e.target.value)}
+                        onChange={handleInputChange(setEnrollmentID)}
                     />
                     <input
                         type="password"
                         placeholder="Enrollment Secret"
                         value={enrollmentSecret}
-                        onChange={(e) => setEnrollmentSecret(e.target.value)}
+                        onChange={handleInputChange(setEnrollmentSecret)}
                     />
                     <button onClick={handleEnrollUser}>Enroll User</button>
+                </div>
+            </div>
+
+            <div className="section">
+                <h2>Freeze Account</h2>
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Account ID"
+                        value={freezeAccountId}
+                        onChange={handleInputChange(setFreezeAccountId)}
+                    />
+                    <button onClick={handleFreezeAccount}>Freeze</button>
+                </div>
+
+                <h2>Unfreeze Account</h2>
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Account ID"
+                        value={unfreezeAccountId}
+                        onChange={handleInputChange(setUnfreezeAccountId)}
+                    />
+                    <button onClick={handleUnfreezeAccount}>Unfreeze</button>
                 </div>
             </div>
         </div>
