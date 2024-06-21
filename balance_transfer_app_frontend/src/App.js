@@ -44,6 +44,12 @@ const App = () => {
         fetchAccounts();
     }, [user]);
 
+    const handleInputChange = (setter) => (event) => {
+        setter(event.target.value);
+        setError('');
+        setEnrollMessage('');
+    };
+
     const handleInitAccount = async () => {
         if (newAccountId && newAccountBalance && user) {
             try {
@@ -164,7 +170,7 @@ const App = () => {
 
                 <label>
                     Select Wallet Account:
-                    <select value={user} onChange={(e) => setUser(e.target.value)}>
+                    <select value={user} onChange={handleInputChange(setUser)}>
                         <option value="" disabled>Select user</option>
                         {walletAccounts.map((account) => (
                             <option key={account} value={account}>
@@ -190,13 +196,13 @@ const App = () => {
                         type="text"
                         placeholder="Account ID"
                         value={newAccountId}
-                        onChange={(e) => setNewAccountId(e.target.value)}
+                        onChange={handleInputChange(setNewAccountId)}
                     />
                     <input
                         type="number"
                         placeholder="Balance"
                         value={newAccountBalance}
-                        onChange={(e) => setNewAccountBalance(e.target.value)}
+                        onChange={handleInputChange(setNewAccountBalance)}
                     />
                 </div>
                 <button onClick={handleInitAccount}>Init Account</button>
@@ -207,19 +213,19 @@ const App = () => {
                         type="text"
                         placeholder="From Account ID"
                         value={transferFrom}
-                        onChange={(e) => setTransferFrom(e.target.value)}
+                        onChange={handleInputChange(setTransferFrom)}
                     />
                     <input
                         type="text"
                         placeholder="To Account ID"
                         value={transferTo}
-                        onChange={(e) => setTransferTo(e.target.value)}
+                        onChange={handleInputChange(setTransferTo)}
                     />
                     <input
                         type="number"
                         placeholder="Amount"
                         value={transferAmount}
-                        onChange={(e) => setTransferAmount(e.target.value)}
+                        onChange={handleInputChange(setTransferAmount)}
                     />
                 </div>
                 <button onClick={handleTransfer}>Transfer</button>
@@ -232,13 +238,13 @@ const App = () => {
                         type="text"
                         placeholder="Account ID"
                         value={setBalanceId}
-                        onChange={(e) => setSetBalanceId(e.target.value)}
+                        onChange={handleInputChange(setSetBalanceId)}
                     />
                     <input
                         type="number"
                         placeholder="New Balance"
                         value={setBalanceValue}
-                        onChange={(e) => setSetBalanceValue(e.target.value)}
+                        onChange={handleInputChange(setSetBalanceValue)}
                     />
                 </div>
                 <button onClick={handleSetBalance}>Set Balance</button>
@@ -249,25 +255,25 @@ const App = () => {
                         type="text"
                         placeholder="Registrar Label"
                         value={registrarLabel}
-                        onChange={(e) => setRegistrarLabel(e.target.value)}
+                        onChange={handleInputChange(setRegistrarLabel)}
                     />
                     <input
                         type="text"
                         placeholder="Identity Label"
                         value={identityLabel}
-                        onChange={(e) => setIdentityLabel(e.target.value)}
+                        onChange={handleInputChange(setIdentityLabel)}
                     />
                     <input
                         type="text"
                         placeholder="Enrollment ID"
                         value={enrollmentID}
-                        onChange={(e) => setEnrollmentID(e.target.value)}
+                        onChange={handleInputChange(setEnrollmentID)}
                     />
                     <input
                         type="password"
                         placeholder="Enrollment Secret"
                         value={enrollmentSecret}
-                        onChange={(e) => setEnrollmentSecret(e.target.value)}
+                        onChange={handleInputChange(setEnrollmentSecret)}
                     />
                     <button onClick={handleEnrollUser}>Enroll User</button>
                 </div>
@@ -280,7 +286,7 @@ const App = () => {
                         type="text"
                         placeholder="Account ID"
                         value={freezeAccountId}
-                        onChange={(e) => setFreezeAccountId(e.target.value)}
+                        onChange={handleInputChange(setFreezeAccountId)}
                     />
                     <button onClick={handleFreezeAccount}>Freeze</button>
                 </div>
@@ -291,7 +297,7 @@ const App = () => {
                         type="text"
                         placeholder="Account ID"
                         value={unfreezeAccountId}
-                        onChange={(e) => setUnfreezeAccountId(e.target.value)}
+                        onChange={handleInputChange(setUnfreezeAccountId)}
                     />
                     <button onClick={handleUnfreezeAccount}>Unfreeze</button>
                 </div>
