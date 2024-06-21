@@ -50,6 +50,11 @@ const App = () => {
         setEnrollMessage('');
     };
 
+    const extractErrorMessage = (error) => {
+        const errorMatch = error.match(/message=([^,]*)/);
+        return errorMatch ? errorMatch[1].split('\n')[0] : error;
+    };
+
     const handleInitAccount = async () => {
         if (newAccountId && newAccountBalance && user) {
             try {
@@ -59,7 +64,7 @@ const App = () => {
                 setNewAccountBalance('');
                 setError(''); // Clear error on success
             } catch (err) {
-                setError(err.message);
+                setError(extractErrorMessage(err.message));
             }
         } else {
             setError('Please provide valid input and select a user.');
@@ -77,7 +82,7 @@ const App = () => {
                 setTransferAmount('');
                 setError(''); // Clear error on success
             } catch (err) {
-                setError(err.message);
+                setError(extractErrorMessage(err.message));
             }
         } else {
             setError('Please provide valid input and select a user.');
@@ -93,7 +98,7 @@ const App = () => {
                 setSetBalanceValue('');
                 setError(''); // Clear error on success
             } catch (err) {
-                setError(err.message);
+                setError(extractErrorMessage(err.message));
             }
         } else {
             setError('Please provide valid input and select a user.');
@@ -132,7 +137,7 @@ const App = () => {
                 setFreezeAccountId('');
                 setError(''); // Clear error on success
             } catch (err) {
-                setError(err.message);
+                setError(extractErrorMessage(err.message));
             }
         } else {
             setError('Please provide valid input and select Admin to freeze account.');
@@ -146,7 +151,7 @@ const App = () => {
                 setUnfreezeAccountId('');
                 setError(''); // Clear error on success
             } catch (err) {
-                setError(err.message);
+                setError(extractErrorMessage(err.message));
             }
         } else {
             setError('Please provide valid input and select Admin to unfreeze account.');
